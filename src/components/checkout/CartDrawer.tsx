@@ -6,12 +6,32 @@ import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import { ArrowRight, Compass, ShoppingBag } from "lucide-react";
 import { itemKey, itemTotal, useCart, useCartItems, type CartItem } from "@/lib/cart";
-import { money } from "@/lib/format";
+import { longDate, money, unitCount, whatsappUrl } from "@/lib/format";
+import { site } from "@/config/site";
+import { WhatsAppIcon } from "@/components/ui/BrandIcons";
 import { Sheet } from "@/components/ui/Sheet";
 import { CartLine } from "./CartLine";
 import { BookingForm } from "./BookingForm";
 
-export function CartDrawer() {
+/** Roteiro inteiro numa mensagem pro WhatsApp da agência (carrinho sem checkout). */
+function roteiroMessage(items: CartItem[], total: number) {
+  return [
+    "Olá! Quero verificar a disponibilidade do meu roteiro:",
+    ...items.map((i) =>
+      [
+        "",
+        `*${i.title}*`,
+        `Data: ${longDate(i.date)}`,
+        `${unitCount(i.saleUnit, i.seats)}${i.infants > 0 ? ` + ${i.infants} de colo` : ""} · ${money(itemTotal(i))}`,
+      ].join("\n")
+    ),
+    "",
+    `*Total:* ${money(total)}`,
+  ].join("\n");
+}
+
+/** `phone` = WhatsApp da agência, usado quando a compra pelo site está desligada. */
+export function CartDrawer({ phone }: { phone: string }) {
   const open = useCart((s) => s.open);
   const setOpen = useCart((s) => s.setOpen);
   const items = useCartItems();
@@ -62,13 +82,24 @@ export function CartDrawer() {
                 <span className="text-sm font-semibold text-white/60">Total</span>
                 <span className="font-display text-3xl text-white">{money(total)}</span>
               </div>
-              <Link
-                href="/reservar"
-                onClick={() => setOpen(false)}
-                className="flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-amber-500 to-amber-400 py-4 text-sm font-extrabold uppercase tracking-wide text-white shadow-lg shadow-amber-500/30"
-              >
-                Finalizar reserva <ArrowRight size={18} />
-              </Link>
+              {site.onlineBooking ? (
+                <Link
+                  href="/reservar"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-amber-500 to-amber-400 py-4 text-sm font-extrabold uppercase tracking-wide text-white shadow-lg shadow-amber-500/30"
+                >
+                  Finalizar reserva <ArrowRight size={18} />
+                </Link>
+              ) : (
+                <a
+                  href={whatsappUrl(phone, roteiroMessage(items, total))}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center justify-center gap-3 rounded-full bg-[#25D366] py-4 text-sm font-extrabold uppercase tracking-wide text-white shadow-xl shadow-[#25D366]/30 transition hover:bg-[#1ebe5b]"
+                >
+                  <WhatsAppIcon size={22} /> Enviar pelo WhatsApp
+                </a>
+              )}
               <p className="mt-3 text-center text-xs text-white/50">Sem pagamento agora · a agência confirma pelo WhatsApp</p>
             </div>
           </div>

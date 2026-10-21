@@ -31,6 +31,13 @@ export const site = {
    */
   onlineBooking: false,
 
+  /**
+   * Carrinho ("Meu roteiro") sem o checkout: junta vários passeios, cada um com a sua data, e o
+   * "Finalizar" abre o WhatsApp com a lista pra agência confirmar. Com onlineBooking ligado o carrinho
+   * já vem junto, com o checkout.
+   */
+  cart: true,
+
   /** Reels do Instagram (URL do reel/post). Vazio = a seção mostra os celulares com os bastidores. */
   instagramReels: [] as string[],
 
@@ -107,7 +114,7 @@ export const site = {
     {
       question: "Como funciona a reserva?",
       answer:
-        "Escolha o passeio aqui no site e toque em “Verificar disponibilidade”: a conversa abre no WhatsApp com o passeio já escrito. É só dizer a data e quantas pessoas vão — a RS Adventure confirma a vaga e combina o pagamento por lá.",
+        "Escolha o passeio, a data e quantas pessoas vão e toque em “Adicionar ao roteiro” — dá pra juntar vários passeios, cada um no seu dia. Depois é só tocar em “Enviar pelo WhatsApp” no seu roteiro: a conversa abre com tudo preenchido, e a RS Adventure confirma as vagas e combina o pagamento por lá.",
     },
     {
       question: "Preciso ter experiência pra pilotar o quadriciclo?",
@@ -143,3 +150,6 @@ export const site = {
 };
 
 export type SiteConfig = typeof site;
+
+/** Carrinho visível: sozinho (finaliza no WhatsApp) ou junto com a compra pelo site. */
+export const cartEnabled = site.onlineBooking || site.cart;

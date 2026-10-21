@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Barlow_Condensed, Outfit } from "next/font/google";
 import "./globals.css";
-import { site } from "@/config/site";
+import { cartEnabled, site } from "@/config/site";
 import { getAgency } from "@/lib/dunastour/server";
 import { agencyInfo } from "@/lib/agency-info";
 import { Header } from "@/components/layout/Header";
@@ -44,7 +44,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <main>{children}</main>
         <Footer info={info} />
         <WhatsAppFab phone={info.phone} />
-        {site.onlineBooking && <CartDrawer />}
+        {cartEnabled && <CartDrawer phone={info.phone} />}
       </body>
     </html>
   );

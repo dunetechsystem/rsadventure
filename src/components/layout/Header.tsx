@@ -10,7 +10,7 @@ import { whatsappUrl } from "@/lib/format";
 import type { AgencyInfo } from "@/lib/agency-info";
 import { InstagramIcon, WhatsAppIcon } from "@/components/ui/BrandIcons";
 import { RsLogo } from "@/components/ui/Logo";
-import { site } from "@/config/site";
+import { cartEnabled } from "@/config/site";
 import { cn } from "@/lib/cn";
 
 const NAV = [
@@ -86,7 +86,7 @@ export function Header({ info }: { info: AgencyInfo }) {
           >
             <InstagramIcon />
           </a>
-          {site.onlineBooking && (
+          {cartEnabled && (
             <button
               onClick={() => setCartOpen(true)}
               aria-label={`Meu roteiro (${items.length})`}

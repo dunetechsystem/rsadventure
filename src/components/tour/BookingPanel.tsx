@@ -1,14 +1,14 @@
 "use client";
 
 import { ShieldCheck } from "lucide-react";
-import { site } from "@/config/site";
+import { cartEnabled } from "@/config/site";
 import { BookingForm, type BookingBase } from "@/components/checkout/BookingForm";
 import { money, perUnit } from "@/lib/format";
 
 /** Caixa de reserva da página do passeio: lateral fixa no computador, seção #reservar no celular + barra no rodapé. */
 export function BookingPanel({ base, phone }: { base: BookingBase; phone: string }) {
   const discounted = base.unitPrice < base.fullPrice;
-  if (!site.onlineBooking) return <AvailabilityPanel base={base} phone={phone} />;
+  if (!cartEnabled) return <AvailabilityPanel base={base} phone={phone} />;
   return (
     <>
       <div id="reservar" className="scroll-mt-24 rounded-[2rem] bg-night-800/70 p-5 ring-1 ring-white/5 sm:p-6">

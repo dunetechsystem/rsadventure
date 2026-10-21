@@ -10,6 +10,7 @@ import { WhatsAppIcon } from "@/components/ui/BrandIcons";
 import { Calendar } from "./Calendar";
 import { NumberStepper } from "@/components/ui/Stepper";
 import { cn } from "@/lib/cn";
+import { site } from "@/config/site";
 
 export type BookingBase = Omit<CartItem, "date" | "seats" | "infants">;
 
@@ -148,6 +149,15 @@ export function BookingForm({
         >
           <WhatsAppIcon size={22} /> Verificar disponibilidade
         </a>
+      ) : mode === "add" && !site.onlineBooking ? (
+        <button
+          type="button"
+          disabled={!canSave}
+          onClick={() => save(false)}
+          className="rounded-full bg-gradient-to-r from-amber-500 to-amber-400 py-4 text-sm font-extrabold uppercase tracking-wide text-white shadow-lg shadow-amber-500/30 transition hover:brightness-105 disabled:opacity-40 disabled:shadow-none"
+        >
+          {current ? "Atualizar roteiro" : "+ Adicionar ao roteiro"}
+        </button>
       ) : mode === "add" ? (
         <div className="grid gap-2 sm:grid-cols-2">
           <button
