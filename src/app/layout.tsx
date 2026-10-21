@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   description:
     "Não vendemos passeio, vendemos experiência. Quadriciclo, motocross, UTV, sobrevoo, Lagoa Azul, Lagoa Bonita, Atins e Santo Amaro com a RS Adventure em Barreirinhas.",
   keywords: ["Lençóis Maranhenses", "Barreirinhas", "quadriciclo", "motocross", "UTV", "sobrevoo", "Lagoa Azul", "Lagoa Bonita", "Atins", "Santo Amaro", "RS Adventure"],
-  icons: { icon: "/brand/rs-logo.png" },
+  icons: { icon: "/brand/rs-adventure-logo-v2.png" },
   openGraph: {
     type: "website",
     locale: "pt_BR",

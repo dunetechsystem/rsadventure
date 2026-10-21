@@ -1,9 +1,9 @@
 import Image from "next/image";
 import { cn } from "@/lib/cn";
 
-/** Selo da RS Adventure (o círculo listrado com a moto) — arquivo em /public/brand/rs-logo.png. */
+/** Selo da RS Adventure (o círculo listrado com a moto) — arquivo em /public/brand/rs-adventure-logo-v2.png. */
 export function RsMark({ className, priority = false }: { className?: string; priority?: boolean }) {
-  return <Image src="/brand/rs-logo.png" alt="RS Adventure" width={512} height={512} priority={priority} className={cn("h-auto select-none", className ?? "w-full")} />;
+  return <Image src="/brand/rs-adventure-logo-v2.png" alt="RS Adventure" width={1024} height={1024} priority={priority} className={cn("h-auto select-none", className ?? "w-full")} />;
 }
 
 /** Selo + "RS ADVENTURE" em letreiro condensado (cabeçalho e rodapé). */
