@@ -1,0 +1,142 @@
+@import "tailwindcss";
+
+/* Paleta da RS Adventure: azul-noite do site/Instagram, laranja do pôr do sol nas dunas (#ff6a00),
+   âmbar do sol e o azul-lagoa que aparece na versão azul da logo. */
+@theme {
+  --color-night-950: #02070f;
+  --color-night-900: #050c1c;
+  --color-night-800: #0a1630;
+  --color-night-700: #111f45;
+  --color-night-600: #1b2b61;
+
+  --color-flame-300: #ffb27a;
+  --color-flame-400: #ff8a2b;
+  --color-flame-500: #ff6a00;
+  --color-flame-600: #e05200;
+
+  --color-amber-300: #ffd28a;
+  --color-amber-400: #ffb43a;
+  --color-amber-500: #f59a11;
+  --color-amber-600: #c97a06;
+
+  --color-lagoon-400: #25b5ee;
+  --color-lagoon-500: #0f93d2;
+
+  --font-sans: var(--font-outfit);
+  --font-display: var(--font-outfit);
+  --font-label: var(--font-barlow);
+
+  --animate-marquee: marquee 40s linear infinite;
+  --animate-kenburns: kenburns 18s ease-out both;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-shimmer: shimmer 2.2s linear infinite;
+
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  @keyframes kenburns {
+    from { transform: scale(1.12) translate3d(0, 0, 0); }
+    to { transform: scale(1) translate3d(0, -1.5%, 0); }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  @keyframes shimmer {
+    from { background-position: -200% 0; }
+    to { background-position: 200% 0; }
+  }
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-night-900);
+  color: #fff;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--color-flame-500);
+  color: #fff;
+}
+
+/* Palavra em destaque nos títulos: laranja, como "COLETIVOS" e "DESTAQUE" no site da marca. */
+.font-display em {
+  font-style: normal;
+  color: var(--color-flame-500);
+}
+
+/* Títulos de card e botões: condensada em caixa-alta, como o letreiro dos passeios. */
+@utility font-label {
+  font-family: var(--font-barlow), "Arial Narrow", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@utility text-balance {
+  text-wrap: balance;
+}
+
+@utility text-amber-gradient {
+  background: linear-gradient(100deg, var(--color-amber-500), var(--color-amber-400) 45%, var(--color-amber-300) 60%, var(--color-amber-400));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility text-flame-gradient {
+  background: linear-gradient(100deg, var(--color-flame-500), var(--color-flame-400) 60%, var(--color-amber-400));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Pincelada laranja que sublinha os títulos (o "risco" do site da marca). */
+@utility brush {
+  background: url("/brand/brush.svg") center bottom / 100% 100% no-repeat;
+}
+
+/* Faixas horizontais da logo (sol listrado). */
+@utility sun-stripes {
+  background-image: repeating-linear-gradient(to bottom, transparent 0 14px, var(--color-night-900) 14px 18px);
+}
+
+@utility skeleton {
+  background: linear-gradient(90deg, var(--color-night-800) 25%, var(--color-night-700) 50%, var(--color-night-800) 75%);
+  background-size: 200% 100%;
+  animation: var(--animate-shimmer);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Textura de "papel" dos posts (granulado bem leve) pros blocos de cor. */
+@utility grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
