@@ -9,7 +9,7 @@ import { site } from "@/config/site";
 import { whatsappUrl } from "@/lib/format";
 import { WhatsAppIcon } from "@/components/ui/BrandIcons";
 import { DuneScene } from "@/components/ui/DuneScene";
-import { RsMark } from "@/components/ui/Logo";
+import { AnimatedRsMark } from "@/components/ui/AnimatedLogo";
 
 /**
  * Abertura: pôr do sol nas dunas (SVG de marca) com as fotos dos passeios passando por cima, o texto
@@ -139,14 +139,9 @@ export function Hero({
           </motion.div>
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8, rotate: -12 }}
-          animate={{ opacity: 1, scale: 1, rotate: 0 }}
-          transition={{ delay: 0.3, duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-          className="mx-auto hidden w-full max-w-sm animate-float drop-shadow-[0_30px_60px_rgba(0,0,0,0.55)] lg:block"
-        >
-          <RsMark priority />
-        </motion.div>
+        <div className="mx-auto hidden w-full max-w-sm animate-float drop-shadow-[0_30px_60px_rgba(0,0,0,0.55)] lg:block">
+          <AnimatedRsMark delay={0.3} />
+        </div>
       </div>
 
       {images.length > 1 && !site.heroVideo && (
