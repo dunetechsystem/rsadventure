@@ -17,7 +17,9 @@ export async function POST(req: NextRequest) {
   const origin = req.nextUrl.origin;
   after(async () => {
     const [tours, packages] = await Promise.all([getTours(), getPackages()]);
-    const paths = ["/", "/passeios", "/galeria", "/reservar", ...tours.map((t) => `/passeios/${t.slug}`), ...packages.map((p) => `/pacotes/${p.slug}`)];
+    // Slug quando o servidor já gera (links novos), senão o id (links antigos).
+    const param = (item: { id: string }) => (item as { slug?: string }).slug ?? item.id;
+    const paths = ["/", "/passeios", "/galeria", "/reservar", ...tours.map((t) => `/passeios/${param(t)}`), ...packages.map((p) => `/pacotes/${param(p)}`)];
     await Promise.allSettled(paths.map((p) => fetch(`${origin}${p}`, { cache: "no-store", signal: AbortSignal.timeout(20_000) })));
   });
 
