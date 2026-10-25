@@ -5,6 +5,7 @@ import type {
   LagoonStatus,
   PackageCard,
   PackageDetail,
+  TourReview,
   TourCard,
   TourDetail,
 } from "./types";
@@ -90,6 +91,16 @@ export async function getReviews(): Promise<AgencyPublicReviews | null> {
   const id = await getAgencyId();
   if (!id) return null;
   return get<AgencyPublicReviews>(`/api/agencies/${id}/reviews`);
+}
+
+/** Avaliações de um passeio (comentários, fotos dos viajantes e resposta da agência), as mais novas primeiro. */
+export async function getTourReviews(tourId: string): Promise<TourReview[]> {
+  const items = (await get<TourReview[]>(`/api/tours/${tourId}/reviews`)) ?? [];
+  return items.map((r) => ({
+    ...r,
+    photoUrls: (r.photoUrls ?? []).map((u) => fixMediaUrl(u)).filter((u): u is string => !!u),
+    touristAvatarUrl: fixMediaUrl(r.touristAvatarUrl),
+  }));
 }
 
 /** Fotos/vídeos que a agência cadastrou por lugar (id do ponto turístico → URLs). */

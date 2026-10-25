@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Backpack, BadgeCheck, CarFront, Check, Clock, Flame, Footprints, ShieldAlert, Sunrise, Users } from "lucide-react";
-import { getAgency, getTour, getTours } from "@/lib/dunastour/server";
+import { getAgency, getTour, getTourReviews, getTours } from "@/lib/dunastour/server";
 import { tourBase } from "@/lib/booking-base";
 import { agencyInfo } from "@/lib/agency-info";
 import { site } from "@/config/site";
@@ -12,6 +12,7 @@ import { BookingPanel } from "@/components/tour/BookingPanel";
 import { LineList, RichText } from "@/components/tour/RichText";
 import { TourCard } from "@/components/tour/TourCard";
 import { Reveal } from "@/components/ui/Reveal";
+import { TourReviewsSummary } from "@/components/tour/TourReviews";
 
 export const revalidate = 300;
 
@@ -34,6 +35,7 @@ export default async function TourPage({ params }: PageProps<"/passeios/[id]">) 
   const { id } = await params;
   const [tour, tours, agency] = await Promise.all([getTour(id), getTours(), getAgency()]);
   if (!tour) notFound();
+  const tourReviews = await getTourReviews(tour.id);
   const title = displayTitle(tour.title);
   const cover = tour.mediaUrls[0] ?? tours.find((t) => t.id === id)?.coverImageUrl ?? null;
   const others = tours.filter((t) => t.id !== id).slice(0, 3);
@@ -127,6 +129,9 @@ export default async function TourPage({ params }: PageProps<"/passeios/[id]">) 
               )}
             </div>
           )}
+
+          {/* Avaliações do DunasTour com fotos: avatares + estrelas e o botão pra página com comentários e fotos. */}
+          <TourReviewsSummary reviews={tourReviews} href={`/passeios/${id}/avaliacoes`} />
 
           {tour.riskType && (
             <div className="mt-8 flex gap-3 rounded-3xl border border-amber-400/40 bg-amber-400/10 p-5 text-sm text-white/80">

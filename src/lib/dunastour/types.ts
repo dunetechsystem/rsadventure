@@ -116,6 +116,18 @@ export interface AgencyPublicReviews {
   items: { touristName: string; rating: number; comment: string; tourTitle: string; createdAt: string }[];
 }
 
+/** GET /api/tours/{id}/reviews — avaliação do passeio, com as fotos que o viajante mandou e a foto de perfil dele. */
+export interface TourReview {
+  id: string;
+  touristName: string;
+  rating: number;
+  comment: string | null;
+  createdAt: string;
+  agencyReply?: string | null;
+  photoUrls?: string[];
+  touristAvatarUrl?: string | null;
+}
+
 /** GET /api/public/lagoons — nível (0–100) das lagoas, previsão e curva mês a mês. */
 export interface LagoonStatus {
   level: number;
