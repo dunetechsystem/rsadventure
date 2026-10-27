@@ -10,6 +10,7 @@ import { Hero } from "@/components/home/Hero";
 import { Marquee } from "@/components/home/Marquee";
 import { Featured } from "@/components/home/Featured";
 import { TourSections } from "@/components/home/TourSections";
+import { isTransfer } from "@/lib/transfers";
 import { Services } from "@/components/home/Services";
 import { About } from "@/components/home/About";
 import { Credentials } from "@/components/home/Credentials";
@@ -36,7 +37,7 @@ export default async function Home() {
   ]);
   const info = agencyInfo(agency);
   const photos = gallery.filter((g) => !g.video).map((g) => g.url);
-  const heroImages = [...new Set([agency?.coverImageUrl, ...tours.map((t) => t.coverImageUrl), ...photos])]
+  const heroImages = [...new Set([agency?.coverImageUrl, ...tours.filter((t) => !isTransfer(t)).map((t) => t.coverImageUrl), ...photos])]
     .filter((u): u is string => !!u)
     .slice(0, 6);
   const videos = gallery.filter((g) => g.video).map((g) => ({ src: g.url, title: g.place }));

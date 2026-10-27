@@ -6,6 +6,7 @@ import { PageHero } from "@/components/layout/PageHero";
 import { PackageCardView, TourCard } from "@/components/tour/TourCard";
 import { EmptyTours } from "@/components/tour/EmptyTours";
 import { Reveal } from "@/components/ui/Reveal";
+import { splitTransfers } from "@/lib/transfers";
 
 export const revalidate = 300;
 export const metadata: Metadata = {
@@ -15,7 +16,8 @@ export const metadata: Metadata = {
 };
 
 export default async function ToursPage() {
-  const [tours, packages, agency] = await Promise.all([getTours(), getPackages(), getAgency()]);
+  const [allTours, packages, agency] = await Promise.all([getTours(), getPackages(), getAgency()]);
+  const { tours, transfers } = splitTransfers(allTours);
   return (
     <>
       <PageHero
@@ -47,7 +49,21 @@ export default async function ToursPage() {
             ))}
           </div>
         ) : (
-          packages.length === 0 && <EmptyTours phone={agencyInfo(agency).phone} />
+          packages.length === 0 && transfers.length === 0 && <EmptyTours phone={agencyInfo(agency).phone} />
+        )}
+        {transfers.length > 0 && (
+          <section id="transfers" className="mt-20 scroll-mt-24">
+            <h2 className="mb-8 font-display text-4xl text-white">
+              <em>Transfers</em>
+            </h2>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {transfers.map((tour, i) => (
+                <Reveal key={tour.id} delay={(i % 3) * 0.08}>
+                  <TourCard tour={tour} />
+                </Reveal>
+              ))}
+            </div>
+          </section>
         )}
       </div>
     </>

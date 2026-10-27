@@ -1,6 +1,5 @@
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import { isPrivateTour } from "@/lib/format";
+import { splitTransfers } from "@/lib/transfers";
 import type { PackageCard, TourCard as TourCardType } from "@/lib/dunastour/types";
 import { PackageCardView, TourCard } from "@/components/tour/TourCard";
 import { EmptyTours } from "@/components/tour/EmptyTours";
@@ -18,8 +17,9 @@ function Grid({ tours }: { tours: TourCardType[] }) {
   );
 }
 
-/** Passeios do DunasTour separados em coletivos (por pessoa) e privativos (por veículo / exclusivos). */
-export function TourSections({ tours, packages, phone }: { tours: TourCardType[]; packages: PackageCard[]; phone: string }) {
+/** Passeios do DunasTour separados em coletivos (por pessoa), privativos (por veículo / exclusivos) e transfers. Mostra todos. */
+export function TourSections({ tours: all, packages, phone }: { tours: TourCardType[]; packages: PackageCard[]; phone: string }) {
+  const { tours, transfers } = splitTransfers(all);
   const priv = tours.filter(isPrivateTour);
   const group = tours.filter((t) => !isPrivateTour(t));
   return (
@@ -34,7 +34,7 @@ export function TourSections({ tours, packages, phone }: { tours: TourCardType[]
             ))}
           </div>
         )}
-        {tours.length === 0 && packages.length === 0 && (
+        {all.length === 0 && packages.length === 0 && (
           <>
             <SectionTitle center eyebrow="Passeios" title={<>Passeios <em>RS Adventure</em></>} />
             <EmptyTours phone={phone} />
@@ -52,12 +52,11 @@ export function TourSections({ tours, packages, phone }: { tours: TourCardType[]
             <Grid tours={priv} />
           </div>
         )}
-        {tours.length > 0 && (
-          <Reveal className="mt-12 text-center">
-            <Link href="/passeios" className="group inline-flex items-center gap-2 font-label text-lg font-bold text-white underline decoration-flame-500 decoration-2 underline-offset-4">
-              Ver todos os passeios <ArrowRight size={18} className="text-flame-500 transition group-hover:translate-x-1" />
-            </Link>
-          </Reveal>
+        {transfers.length > 0 && (
+          <div id="transfers" className={tours.length > 0 ? "mt-24 scroll-mt-24" : "scroll-mt-24"}>
+            <SectionTitle center eyebrow="Chegue tranquilo" title={<><em>Transfers</em></>} text="Traslado entre as cidades da região, combinando com os seus passeios." />
+            <Grid tours={transfers} />
+          </div>
         )}
       </section>
     </>

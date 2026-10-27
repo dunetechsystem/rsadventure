@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
 import { Backpack, BadgeCheck, CarFront, Check, Clock, Flame, Footprints, ShieldAlert, Sunrise, Users } from "lucide-react";
-import { findBySlug, getAgency, getReviews, getTour, getTourReviews, getTours } from "@/lib/dunastour/server";
+import { findBySlug, getAgency, getTour, getTourReviews, getTours } from "@/lib/dunastour/server";
 import { tourBase } from "@/lib/booking-base";
 import { agencyInfo } from "@/lib/agency-info";
 import { site } from "@/config/site";
@@ -14,6 +14,7 @@ import { TourCard } from "@/components/tour/TourCard";
 import { Reveal } from "@/components/ui/Reveal";
 import { TourReviewsSummary } from "@/components/tour/TourReviews";
 import { ReviewsSnippet } from "@/components/tour/ReviewsSnippet";
+import { isTransfer, splitTransfers, transferRoute } from "@/lib/transfers";
 
 export const revalidate = 300;
 
@@ -42,13 +43,18 @@ export async function generateMetadata({ params }: PageProps<"/passeios/[id]">):
 
 export default async function TourPage({ params }: PageProps<"/passeios/[id]">) {
   const { id } = await params;
-  const [{ tour, tours, card }, agency, reviews] = await Promise.all([resolveTour(id), getAgency(), getReviews()]);
+  const [{ tour, tours, card }, agency] = await Promise.all([resolveTour(id), getAgency()]);
   if (!tour) notFound();
   if (card?.slug && card.slug !== decodeURIComponent(id)) permanentRedirect(`/passeios/${card.slug}`);
   const tourReviews = await getTourReviews(tour.id);
   const title = displayTitle(tour.title);
   const cover = tour.mediaUrls[0] ?? card?.coverImageUrl ?? null;
-  const others = tours.filter((t) => t.id !== tour.id).slice(0, 3);
+  // Passeio: "Combine com" só outros passeios e, embaixo, os transfers. Transfer: sugere os passeios.
+  const transfer = isTransfer(tour);
+  const route = transfer ? transferRoute(tour) : null;
+  const split = splitTransfers(tours.filter((t) => t.id !== tour.id));
+  const others = split.tours.slice(0, 3);
+  const transfers = transfer ? [] : split.transfers;
   const vehicle = tour.saleUnit && tour.saleUnit !== "PESSOA";
 
   const facts = [
@@ -82,11 +88,11 @@ export default async function TourPage({ params }: PageProps<"/passeios/[id]">) 
       <PageHero
         image={cover}
         tall
-        eyebrow={tour.tags.length ? tour.tags.join(" · ") : "Lençóis Maranhenses"}
+        eyebrow={route ?? (tour.tags.length ? tour.tags.join(" · ") : "Lençóis Maranhenses")}
         title={title}
         crumbs={[
           { href: "/", label: "Início" },
-          { href: "/passeios", label: "Passeios" },
+          transfer ? { href: "/passeios#transfers", label: "Transfers" } : { href: "/passeios", label: "Passeios" },
         ]}
       >
         <div className="mt-6 flex flex-wrap gap-2">
@@ -146,7 +152,7 @@ export default async function TourPage({ params }: PageProps<"/passeios/[id]">) 
 
           {/* Avaliações do DunasTour com fotos: avatares + estrelas e o botão pra página com comentários e fotos. */}
           <TourReviewsSummary reviews={tourReviews} href={`/passeios/${card?.slug ?? id}/avaliacoes`} />
-          <ReviewsSnippet reviews={reviews} page={agency?.checkoutPage} tourTitle={title} />
+          <ReviewsSnippet reviews={tourReviews} />
 
           {tour.riskType && (
             <div className="mt-8 flex gap-3 rounded-3xl border border-amber-400/40 bg-amber-400/10 p-5 text-sm text-white/80">
@@ -168,10 +174,32 @@ export default async function TourPage({ params }: PageProps<"/passeios/[id]">) 
       {others.length > 0 && (
         <section className="mx-auto max-w-7xl px-4 pb-8 sm:px-6">
           <h2 className="mb-8 font-display text-4xl text-white">
-            Combine com <em>outros passeios</em>
+            {transfer ? (
+              <>
+                Aproveite e conheça <em>nossos passeios</em>
+              </>
+            ) : (
+              <>
+                Combine com <em>outros passeios</em>
+              </>
+            )}
           </h2>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {others.map((t) => (
+              <TourCard key={t.id} tour={t} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {transfers.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 pb-8 pt-8 sm:px-6">
+          <h2 className="mb-2 font-display text-4xl text-white">
+            Precisa de <em>transfer</em>?
+          </h2>
+          <p className="mb-8 text-white/60">A gente leva você até a região e traz de volta.</p>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {transfers.map((t) => (
               <TourCard key={t.id} tour={t} />
             ))}
           </div>
