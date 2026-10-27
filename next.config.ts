@@ -11,6 +11,17 @@ const nextConfig: NextConfig = {
       { protocol: "http", hostname: "localhost", pathname: "/uploads/**" },
     ],
   },
+  async redirects() {
+    // Uma só versão do site para o Google: www -> domínio sem www (301).
+    return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.rsadventure.tur.br" }],
+        destination: "https://rsadventure.tur.br/:path*",
+        permanent: true,
+      },
+    ];
+  },
   turbopack: {
     rules: {
       "*.css": {
