@@ -17,7 +17,7 @@ export function Featured({ tours, phone }: { tours: TourCard[]; phone: string })
         {site.featured.map((f, i) => {
           const matches = tours.filter((t) => f.match.test(t.title));
           const tour = matches.find((t) => t.coverImageUrl) ?? matches[0];
-          const href = tour ? `/passeios/${tour.id}` : whatsappUrl(phone, f.message);
+          const href = tour ? `/passeios/${tour.slug ?? tour.id}` : whatsappUrl(phone, f.message);
           const external = !tour;
           const flip = i === 1;
           return (

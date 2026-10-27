@@ -1,8 +1,10 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { site } from "@/config/site";
 import { getAgency, getLagoons, getPackages, getReviews, getTours } from "@/lib/dunastour/server";
 import { getGallery } from "@/lib/dunastour/gallery";
+import { tourUnitPrice } from "@/lib/format";
 import { agencyInfo } from "@/lib/agency-info";
 import { Hero } from "@/components/home/Hero";
 import { Marquee } from "@/components/home/Marquee";
@@ -18,6 +20,8 @@ import { Faq } from "@/components/home/Faq";
 import { FinalCta } from "@/components/home/FinalCta";
 import { GalleryGrid } from "@/components/gallery/GalleryGrid";
 import { Reveal, SectionTitle } from "@/components/ui/Reveal";
+
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 export const revalidate = 300;
 
@@ -41,10 +45,30 @@ export default async function Home() {
   const rating = ratingCount
     ? { average: ((reviews?.average ?? 0) * (reviews?.count ?? 0) + googleRatings.reduce((a, b) => a + b, 0)) / ratingCount, count: ratingCount }
     : null;
+  // Preço de entrada do hero: o passeio por pessoa mais barato (veículo e transfer não comparam).
+  const perPerson = tours
+    .filter((t) => (!t.saleUnit || t.saleUnit === "PESSOA") && !(t.transferFrom && t.transferTo))
+    .map(tourUnitPrice)
+    .filter((p) => p > 0);
   const faqs = agency?.checkoutPage?.faqs.length ? [...agency.checkoutPage.faqs, ...site.faqs] : site.faqs;
+  // Ficha da agência pro Google (nome, logo, telefone, cidade e Instagram no resultado da busca).
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "TravelAgency",
+    name: site.name,
+    slogan: site.slogan,
+    url: site.url,
+    logo: `${site.url}/brand/rs-adventure-logo-v2.png`,
+    image: `${site.url}/opengraph-image.jpg`,
+    telephone: info.phone,
+    address: { "@type": "PostalAddress", addressLocality: info.city, addressRegion: "MA", addressCountry: "BR" },
+    founder: { "@type": "Person", name: site.founder.name },
+    sameAs: [`https://www.instagram.com/${info.instagram}`],
+  };
 
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <Hero
         images={heroImages}
         tourCount={tours.length + packages.length}
@@ -52,6 +76,7 @@ export default async function Home() {
         lagoonLevel={lagoons?.level ?? null}
         rating={rating}
         cadasturUrl={info.cadasturUrl}
+        minPrice={perPerson.length ? Math.min(...perPerson) : null}
       />
       <Marquee items={site.destinations} />
       <Featured tours={tours} phone={info.phone} />

@@ -8,7 +8,11 @@ import { EmptyTours } from "@/components/tour/EmptyTours";
 import { Reveal } from "@/components/ui/Reveal";
 
 export const revalidate = 300;
-export const metadata: Metadata = { title: "Passeios" };
+export const metadata: Metadata = {
+  title: "Passeios",
+  alternates: { canonical: "/passeios" },
+  description: "Quadriciclo, motocross, UTV, sobrevoo, Lagoa Azul, Lagoa Bonita, Atins e Santo Amaro nos Lençóis Maranhenses, com busca no hotel em Barreirinhas.",
+};
 
 export default async function ToursPage() {
   const [tours, packages, agency] = await Promise.all([getTours(), getPackages(), getAgency()]);

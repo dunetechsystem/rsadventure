@@ -25,8 +25,26 @@ npm run build && npm start   # produção
 
 ## Marca
 
-- Selo: `public/brand/rs-logo.png` (recortado da prancha, fundo transparente, versão para fundo escuro). Fundador: `public/team/ruan.jpg`.
-- Imagem de compartilhamento: `public/og.jpg`.
+- Selo: `public/brand/rs-adventure-logo-v2.png` (+ `-base`/`-moto` pra animação do hero). Fundador: `public/team/ruan.jpg`.
+- Ícones da aba: `src/app/favicon.ico`, `icon.png` e `apple-icon.png`.
+- **Imagem do link** (WhatsApp, Instagram, Facebook):
+  - Home e páginas gerais: `src/app/opengraph-image.jpg` (= `twitter-image.jpg`), 1200×630.
+  - Cada passeio/pacote gera o seu card na hora (`src/lib/og-card.tsx`): foto do passeio no DunasTour + selo + nome +
+    preço "a partir de". Sem foto, usa as dunas vistas do avião (`src/assets/og-bg.jpg`). Fontes e selo em `src/assets`.
+  - Tudo em JPEG abaixo de ~300 KB — acima disso o WhatsApp não mostra a imagem.
+  - Mudou a foto e o WhatsApp ainda mostra a antiga? Ele guarda cache: force no
+    [Depurador do Facebook](https://developers.facebook.com/tools/debug/) ("Extrair novamente").
+
+## Domínio (rsadventure.tur.br)
+
+1. `NEXT_PUBLIC_SITE_URL=https://rsadventure.tur.br` no `.env` do servidor (canonical, sitemap, robots e links do
+   compartilhamento saem dele) e rebuild.
+2. DNS no registro.br apontando pro servidor, com HTTPS; `www.rsadventure.tur.br` redirecionando (301) pro sem `www`.
+3. No DunasTour: webhook do site em `DUNASTOUR_SITE_WEBHOOKS` → `https://rsadventure.tur.br/api/revalidate`
+   (mesmo `REVALIDATE_SECRET`), e o IP do servidor liberado na API.
+4. Google Search Console: adicionar o domínio e enviar `https://rsadventure.tur.br/sitemap.xml`.
+5. Meta Business: verificar o domínio (necessário pros eventos do pixel contarem nos anúncios).
+6. Trocar o link da bio do Instagram e do perfil no Google pelo domínio novo.
 
 ## Conteúdo editável
 
@@ -37,3 +55,29 @@ vídeo do hero, reels do Instagram. Reserva online pelo site (`onlineBooking`) v
 
 Só o servidor do Next fala com a API (`DUNASTOUR_API_URL`) — libere o IP do servidor no backend. Leituras em
 `src/lib/dunastour/server.ts` (cache 5 min); ações do navegador passam por `src/app/api/dunas/[...path]/route.ts`.
+
+## Tráfego pago e vendas
+
+IDs no `.env` (ver `.env.example`): Meta Pixel, GA4, Google Ads (+ rótulo da conversão) e/ou GTM. Sem ID, nada carrega.
+Tudo em `src/lib/track.ts` + `src/components/layout/Analytics.tsx`.
+
+| Evento (Meta / GA4) | Quando |
+| --- | --- |
+| `ViewContent` / `view_item` | Abriu a página de um passeio ou pacote |
+| `AddToCart` / `add_to_cart` | Adicionou à viagem/roteiro |
+| `InitiateCheckout` / `begin_checkout` | Abriu o carrinho com itens |
+| `Lead` / `generate_lead` (+ conversão do Google Ads) | **Qualquer** clique num link do WhatsApp |
+| `Purchase` / `purchase` | Reserva enviada pelo `/reservar` (com `onlineBooking` ligado) — o DunasTour manda o mesmo pela API de Conversões |
+
+O `Lead` sai de um ouvinte único em todo link `api.whatsapp.com`, então botão novo de WhatsApp já entra no
+rastreio; `data-lead` (o que é) e `data-value` (valor em R$) no link enriquecem o evento.
+
+**Origem da conversa:** UTM, `gclid` e `fbclid` da visita ficam guardados por 30 dias e vão no fim da mensagem do
+WhatsApp (`_ref: google/cpc/lagoa-azul_`). Use UTMs nos anúncios
+(`?utm_source=meta&utm_medium=paid&utm_campaign=lagoa-azul`) pra saber qual campanha vendeu.
+
+**A venda (Purchase):** fecha no link de checkout do DunasTour que vai pelo WhatsApp. Cadastre **o mesmo ID do pixel**
+no painel do DunasTour (Link de checkout → Pixel do Meta) — de preferência com o token da API de Conversões. Aí o pedido
+enviado no link vira `Purchase` no mesmo pixel, ligado ao anúncio pelo telefone/e-mail do cliente.
+
+Para anúncio, mande o tráfego pra página do passeio (`/passeios/<slug>`), não pra home.

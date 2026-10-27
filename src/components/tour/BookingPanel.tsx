@@ -1,6 +1,8 @@
 "use client";
 
+import { useEffect } from "react";
 import { ShieldCheck } from "lucide-react";
+import { track } from "@/lib/track";
 import { cartEnabled } from "@/config/site";
 import { BookingForm, type BookingBase } from "@/components/checkout/BookingForm";
 import { money, perUnit } from "@/lib/format";
@@ -8,6 +10,7 @@ import { money, perUnit } from "@/lib/format";
 /** Caixa de reserva da página do passeio: lateral fixa no computador, seção #reservar no celular + barra no rodapé. */
 export function BookingPanel({ base, phone }: { base: BookingBase; phone: string }) {
   const discounted = base.unitPrice < base.fullPrice;
+  useEffect(() => track("ViewContent", { value: base.unitPrice, item: base.title, id: base.id }), [base.id, base.title, base.unitPrice]);
   if (!cartEnabled) return <AvailabilityPanel base={base} phone={phone} />;
   return (
     <>

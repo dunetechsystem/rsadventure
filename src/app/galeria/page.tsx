@@ -4,7 +4,11 @@ import { PageHero } from "@/components/layout/PageHero";
 import { GalleryGrid } from "@/components/gallery/GalleryGrid";
 
 export const revalidate = 300;
-export const metadata: Metadata = { title: "Galeria de fotos e vídeos" };
+export const metadata: Metadata = {
+  title: "Galeria de fotos e vídeos",
+  alternates: { canonical: "/galeria" },
+  description: "Fotos e vídeos das aventuras da RS Adventure nos Lençóis Maranhenses: quadriciclo, UTV, lagoas, dunas e sobrevoo.",
+};
 
 export default async function GalleryPage() {
   const gallery = await getGallery();

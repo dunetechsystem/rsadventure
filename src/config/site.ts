@@ -8,7 +8,7 @@ export const site = {
   tagline: "Transformando turismo em experiências reais",
   slogan: "Não vendemos passeio, vendemos experiência.",
   city: "Barreirinhas · MA · Brasil",
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://rsadventure.tur.br",
 
   /** Usados se a API não devolver telefone/Instagram da agência. */
   fallbackWhatsapp: "+55 (98) 99976-1057",

@@ -36,6 +36,7 @@ export function FinalCta({ images, phone }: { images: string[]; phone: string })
             <div className={`mt-10 flex flex-col gap-3 sm:flex-row ${tiles.length === 3 ? "" : "justify-center"}`}>
               <a
                 href={whatsappUrl(phone, "Olá, RS Adventure! Quero reservar meu passeio nos Lençóis 😊")}
+                data-lead="cta-final"
                 target="_blank"
                 rel="noreferrer"
                 className="group flex items-center justify-center gap-3 rounded-xl bg-flame-500 px-7 py-4 font-label text-lg font-bold text-white shadow-2xl shadow-flame-500/30 transition hover:bg-flame-400"

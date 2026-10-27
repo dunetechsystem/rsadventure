@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Fontes, selo e fundo dos cards de compartilhamento (lib/og-card) são lidos do disco em runtime.
+  outputFileTracingIncludes: { "/**": ["./src/assets/**"] },
   images: {
     // Fotos e vídeos dos passeios vêm do DunasTour (api.dunastour.com.br/uploads/...).
     remotePatterns: [

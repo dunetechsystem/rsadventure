@@ -18,6 +18,7 @@ import { RiskTermStep } from "./RiskTermStep";
 import { DoneStep } from "./DoneStep";
 import { TourCard as TourCardView } from "@/components/tour/TourCard";
 import { cn } from "@/lib/cn";
+import { pixelTracking, track } from "@/lib/track";
 
 type StepId = "tours" | "details" | "risk" | "confirm";
 const STEP_LABELS: Record<StepId, string> = { tours: "Seu roteiro", details: "Seus dados", risk: "Termo de risco", confirm: "Confirmar" };
@@ -176,7 +177,9 @@ export function Checkout({ phone: agencyPhone, agencyName, suggestions }: { phon
     setSubmitError(null);
     try {
       const fullPhone = buildPhone(country, phone);
+      const tracking = pixelTracking();
       const data = await submitCheckout({
+        tracking: tracking ?? undefined,
         items: items.map((i) => ({
           ...(i.kind === "tour" ? { tourId: i.id } : { packageId: i.id }),
           scheduledDate: i.date,
@@ -202,6 +205,7 @@ export function Checkout({ phone: agencyPhone, agencyName, suggestions }: { phon
             }
           : undefined,
       });
+      track("Purchase", { value: (data ?? []).reduce((sum, r) => sum + r.totalAmount, 0), item: "reserva" }, tracking?.eventId);
       if (remember) saveProfile({ name, email, phoneIso: countryIso, phone, cpf, address });
       else clearProfile();
       setResult({ items: data ?? [], infants: Math.max(0, ...items.map((i) => i.infants)), risk: needsRisk, name: name.trim() });
@@ -293,7 +297,7 @@ export function Checkout({ phone: agencyPhone, agencyName, suggestions }: { phon
                         {notInCart.map((t) => (
                           <Link
                             key={t.id}
-                            href={`/passeios/${t.id}`}
+                            href={`/passeios/${t.slug ?? t.id}`}
                             className="flex w-60 shrink-0 items-center gap-3 rounded-3xl bg-night-800 p-2.5 ring-1 ring-white/5 transition hover:ring-white/20"
                           >
                             <span

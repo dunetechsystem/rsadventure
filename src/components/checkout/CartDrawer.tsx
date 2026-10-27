@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import { ArrowRight, Compass, ShoppingBag } from "lucide-react";
@@ -12,6 +12,7 @@ import { WhatsAppIcon } from "@/components/ui/BrandIcons";
 import { Sheet } from "@/components/ui/Sheet";
 import { CartLine } from "./CartLine";
 import { BookingForm } from "./BookingForm";
+import { track } from "@/lib/track";
 
 /** Roteiro inteiro numa mensagem pro WhatsApp da agência (carrinho sem checkout). */
 function roteiroMessage(items: CartItem[], total: number) {
@@ -38,6 +39,12 @@ export function CartDrawer({ phone }: { phone: string }) {
   const [editing, setEditing] = useState<CartItem | null>(null);
   const pathname = usePathname();
   const total = items.reduce((sum, i) => sum + itemTotal(i), 0);
+
+  // Abriu o roteiro com algo dentro = começou a finalizar (público de remarketing de quem não mandou).
+  useEffect(() => {
+    if (open && items.length) track("InitiateCheckout", { value: total, item: "roteiro" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   return (
     <>
@@ -93,6 +100,8 @@ export function CartDrawer({ phone }: { phone: string }) {
               ) : (
                 <a
                   href={whatsappUrl(phone, roteiroMessage(items, total))}
+                  data-lead="roteiro"
+                  data-value={total}
                   target="_blank"
                   rel="noreferrer"
                   className="flex items-center justify-center gap-3 rounded-full bg-[#25D366] py-4 text-sm font-extrabold uppercase tracking-wide text-white shadow-xl shadow-[#25D366]/30 transition hover:bg-[#1ebe5b]"

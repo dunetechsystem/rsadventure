@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { BadgeCheck, ChevronDown, Compass, Droplets, Star } from "lucide-react";
 import { site } from "@/config/site";
-import { whatsappUrl } from "@/lib/format";
+import { money, whatsappUrl } from "@/lib/format";
 import { WhatsAppIcon } from "@/components/ui/BrandIcons";
 import { DuneScene } from "@/components/ui/DuneScene";
 import { AnimatedRsMark } from "@/components/ui/AnimatedLogo";
@@ -22,6 +22,7 @@ export function Hero({
   lagoonLevel,
   rating,
   cadasturUrl,
+  minPrice,
 }: {
   images: string[];
   tourCount: number;
@@ -29,6 +30,8 @@ export function Hero({
   lagoonLevel: number | null;
   rating: { average: number; count: number } | null;
   cadasturUrl: string | null;
+  /** Passeio por pessoa mais barato — quem chega de anúncio vê logo o preço de entrada. */
+  minPrice: number | null;
 }) {
   const [index, setIndex] = useState(0);
 
@@ -96,6 +99,12 @@ export function Hero({
           />
           <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="mt-6 max-w-lg text-lg leading-relaxed text-white/80">
             Passeios, aventuras e experiências privativas em Barreirinhas e região. {site.slogan}
+            {minPrice != null && (
+              <>
+                {" "}
+                A partir de <strong className="text-white">{money(minPrice)}</strong> por pessoa.
+              </>
+            )}
           </motion.p>
 
           <motion.div
@@ -106,6 +115,7 @@ export function Hero({
           >
             <a
               href={whatsappUrl(phone, "Olá, RS Adventure! Quero reservar um passeio nos Lençóis 😊")}
+              data-lead="hero"
               target="_blank"
               rel="noreferrer"
               className="group flex items-center justify-center gap-3 rounded-xl bg-flame-500 px-7 py-4 font-label text-lg font-bold text-white shadow-2xl shadow-flame-500/30 transition hover:bg-flame-400"

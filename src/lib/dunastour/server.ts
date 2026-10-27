@@ -10,6 +10,7 @@ import type {
   TourDetail,
 } from "./types";
 import { fixMediaUrl } from "../media";
+import { slugify } from "../format";
 
 /**
  * Acesso à API do DunasTour pelo servidor do Next — o navegador nunca fala direto com a API (o IP
@@ -19,6 +20,21 @@ import { fixMediaUrl } from "../media";
 export const API_URL = (process.env.DUNASTOUR_API_URL ?? "https://api.dunastour.com.br").replace(/\/$/, "");
 export const AGENCY_SLUG = process.env.DUNASTOUR_AGENCY_SLUG ?? "rs-adventure";
 const REVALIDATE = 300;
+
+/** Slug pelo título; títulos repetidos levam o começo do id pra não colidir. */
+function withSlugs<T extends { id: string; title: string }>(items: T[]): (T & { slug: string })[] {
+  const seen = new Set<string>();
+  return items.map((item) => {
+    let slug = slugify(item.title) || item.id;
+    if (seen.has(slug)) slug = `${slug}-${item.id.slice(0, 6)}`;
+    seen.add(slug);
+    return { ...item, slug };
+  });
+}
+
+/** Acha pelo slug ou pelo id antigo (links velhos e itens do carrinho ainda usam o id). */
+export const findBySlug = <T extends { id: string; slug?: string }>(items: T[], param: string) =>
+  items.find((i) => i.slug === param) ?? items.find((i) => i.id === param);
 
 async function get<T>(path: string, revalidate = REVALIDATE): Promise<T | null> {
   try {
@@ -53,7 +69,7 @@ export async function getTours(): Promise<TourCard[]> {
   const id = await getAgencyId();
   if (!id) return [];
   const tours = (await get<TourCard[]>(`/api/agencies/${id}/tours`)) ?? [];
-  return tours.map((t) => ({ ...t, coverImageUrl: fixMediaUrl(t.coverImageUrl) }));
+  return withSlugs(tours.map((t) => ({ ...t, coverImageUrl: fixMediaUrl(t.coverImageUrl) })));
 }
 
 export async function getTour(tourId: string): Promise<TourDetail | null> {
@@ -68,7 +84,7 @@ export async function getPackages(): Promise<PackageCard[]> {
   const id = await getAgencyId();
   if (!id) return [];
   const packages = (await get<PackageCard[]>(`/api/agencies/${id}/packages`)) ?? [];
-  return packages.map((p) => ({ ...p, coverImageUrl: fixMediaUrl(p.coverImageUrl) }));
+  return withSlugs(packages.map((p) => ({ ...p, coverImageUrl: fixMediaUrl(p.coverImageUrl) })));
 }
 
 export async function getPackage(packageId: string): Promise<PackageDetail | null> {

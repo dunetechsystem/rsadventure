@@ -8,6 +8,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { WhatsAppFab } from "@/components/layout/WhatsAppFab";
 import { CartDrawer } from "@/components/checkout/CartDrawer";
+import { Analytics } from "@/components/layout/Analytics";
 
 // Outfit = títulos e textos (geométrica, como no site da marca); Barlow Condensed = letreiro dos cards e botões.
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit", display: "swap" });
@@ -22,13 +23,13 @@ export const metadata: Metadata = {
   description:
     "Não vendemos passeio, vendemos experiência. Quadriciclo, motocross, UTV, sobrevoo, Lagoa Azul, Lagoa Bonita, Atins e Santo Amaro com a RS Adventure em Barreirinhas.",
   keywords: ["Lençóis Maranhenses", "Barreirinhas", "quadriciclo", "motocross", "UTV", "sobrevoo", "Lagoa Azul", "Lagoa Bonita", "Atins", "Santo Amaro", "RS Adventure"],
-  icons: { icon: "/brand/rs-adventure-logo-v2.png" },
   openGraph: {
     type: "website",
     locale: "pt_BR",
     siteName: site.name,
-    images: [{ url: "/og.jpg", width: 1200, height: 630, alt: "RS Adventure" }],
+    // Imagem do compartilhamento: app/opengraph-image.jpg e twitter-image.jpg (até ~300 KB pro WhatsApp mostrar).
   },
+  twitter: { card: "summary_large_image" },
 };
 
 export const viewport: Viewport = {
@@ -45,6 +46,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <Footer info={info} />
         <WhatsAppFab phone={info.phone} />
         {cartEnabled && <CartDrawer phone={info.phone} />}
+        <Analytics />
       </body>
     </html>
   );

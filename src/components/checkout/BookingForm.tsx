@@ -10,6 +10,7 @@ import { WhatsAppIcon } from "@/components/ui/BrandIcons";
 import { Calendar } from "./Calendar";
 import { NumberStepper } from "@/components/ui/Stepper";
 import { cn } from "@/lib/cn";
+import { track } from "@/lib/track";
 import { site } from "@/config/site";
 
 export type BookingBase = Omit<CartItem, "date" | "seats" | "infants">;
@@ -56,6 +57,7 @@ export function BookingForm({
   function save(goToCheckout: boolean) {
     if (!canSave) return;
     upsert({ ...base, date, seats, infants: base.allowInfants ? infants : 0 });
+    if (mode !== "edit") track("AddToCart", { value: total, item: base.title, id: base.id });
     onDone?.();
     if (goToCheckout) router.push("/reservar");
     else if (mode === "add") setOpen(true);
@@ -139,6 +141,8 @@ export function BookingForm({
       {mode === "ask" ? (
         <a
           href={canSave ? whatsappUrl(phone, askMessage) : undefined}
+          data-lead={base.title}
+          data-value={total}
           target="_blank"
           rel="noreferrer"
           aria-disabled={!canSave}

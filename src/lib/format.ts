@@ -56,6 +56,13 @@ export function titleCase(text: string) {
     .join(" ");
 }
 
+/** "🌴CIRCUITO LAGOA BONITA📸" → "circuito-lagoa-bonita" — pedaço da URL dos passeios e pacotes. */
+export const slugify = (text: string) =>
+  stripAccents(displayTitle(text))
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
 /** "lagoa-bonita" → "Lagoa Bonita" (ids dos pontos turísticos do DunasTour). */
 export const spotName = (spotId: string) => titleCase(spotId.replace(/[-_]+/g, " "));
 

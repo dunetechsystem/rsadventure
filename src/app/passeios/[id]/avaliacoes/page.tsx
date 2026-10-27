@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
-import { getTour, getTourReviews } from "@/lib/dunastour/server";
+import { findBySlug, getTour, getTourReviews, getTours } from "@/lib/dunastour/server";
 import { displayTitle } from "@/lib/format";
 import { PageHero } from "@/components/layout/PageHero";
 import { GalleryGrid } from "@/components/gallery/GalleryGrid";
@@ -10,16 +10,20 @@ import { Faces, ReviewList, Stars, reviewStats, reviewsLabel } from "@/component
 
 export const revalidate = 300;
 
+async function resolve(param: string) {
+  const card = findBySlug(await getTours(), param);
+  return { tour: await getTour(card?.id ?? param), slug: card?.slug ?? param };
+}
+
 export async function generateMetadata({ params }: PageProps<"/passeios/[id]/avaliacoes">): Promise<Metadata> {
-  const tour = await getTour((await params).id);
+  const { tour, slug } = await resolve((await params).id);
   if (!tour) return { title: "Passeio não encontrado" };
-  return { title: `Avaliações e fotos — ${displayTitle(tour.title)}` };
+  return { title: `Avaliações e fotos — ${displayTitle(tour.title)}`, alternates: { canonical: `/passeios/${slug}/avaliacoes` } };
 }
 
 /** Avaliações, comentários e fotos de quem fez o passeio (vêm do DunasTour — e-mail "Como foi o passeio?"). */
 export default async function TourReviewsPage({ params }: PageProps<"/passeios/[id]/avaliacoes">) {
-  const { id } = await params;
-  const tour = await getTour(id);
+  const { tour, slug: id } = await resolve((await params).id);
   if (!tour) notFound();
   const reviews = await getTourReviews(tour.id);
   const title = displayTitle(tour.title);
