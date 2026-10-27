@@ -152,7 +152,7 @@ export default async function TourPage({ params }: PageProps<"/passeios/[id]">) 
 
           {/* Avaliações do DunasTour com fotos: avatares + estrelas e o botão pra página com comentários e fotos. */}
           <TourReviewsSummary reviews={tourReviews} href={`/passeios/${card?.slug ?? id}/avaliacoes`} />
-          <ReviewsSnippet reviews={tourReviews} />
+          <ReviewsSnippet reviews={tourReviews} page={agency?.checkoutPage} />
 
           {tour.riskType && (
             <div className="mt-8 flex gap-3 rounded-3xl border border-amber-400/40 bg-amber-400/10 p-5 text-sm text-white/80">
