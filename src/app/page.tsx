@@ -53,19 +53,23 @@ export default async function Home() {
     .filter((p) => p > 0);
   const faqs = agency?.checkoutPage?.faqs.length ? [...agency.checkoutPage.faqs, ...site.faqs] : site.faqs;
   // Ficha da agência pro Google (nome, logo, telefone, cidade e Instagram no resultado da busca).
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "TravelAgency",
-    name: site.name,
-    slogan: site.slogan,
-    url: site.url,
-    logo: `${site.url}/brand/rs-adventure-logo-v2.png`,
-    image: `${site.url}/opengraph-image.jpg`,
-    telephone: info.phone,
-    address: { "@type": "PostalAddress", addressLocality: info.city, addressRegion: "MA", addressCountry: "BR" },
-    founder: { "@type": "Person", name: site.founder.name },
-    sameAs: [`https://www.instagram.com/${info.instagram}`],
-  };
+  // WebSite: nome do site no resultado do Google, no lugar do domínio.
+  const jsonLd = [
+    { "@context": "https://schema.org", "@type": "WebSite", name: site.name, url: site.url },
+    {
+      "@context": "https://schema.org",
+      "@type": "TravelAgency",
+      name: site.name,
+      slogan: site.slogan,
+      url: site.url,
+      logo: `${site.url}/brand/rs-adventure-logo-v2.png`,
+      image: `${site.url}/opengraph-image.jpg`,
+      telephone: info.phone,
+      address: { "@type": "PostalAddress", addressLocality: info.city, addressRegion: "MA", addressCountry: "BR" },
+      founder: { "@type": "Person", name: site.founder.name },
+      sameAs: [`https://www.instagram.com/${info.instagram}`],
+    },
+  ];
 
   return (
     <>
