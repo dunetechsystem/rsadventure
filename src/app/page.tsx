@@ -54,8 +54,11 @@ export default async function Home() {
   const faqs = agency?.checkoutPage?.faqs.length ? [...agency.checkoutPage.faqs, ...site.faqs] : site.faqs;
   // Ficha da agência pro Google (nome, logo, telefone, cidade e Instagram no resultado da busca).
   // WebSite: nome do site no resultado do Google, no lugar do domínio.
+  // WebPage: a miniatura do resultado é a imagem com a logo (o Google pode escolher outra foto, mas essa é a indicada).
+  const logoCard = `${site.url}/opengraph-image.jpg`;
   const jsonLd = [
     { "@context": "https://schema.org", "@type": "WebSite", name: site.name, url: site.url },
+    { "@context": "https://schema.org", "@type": "WebPage", url: site.url, name: site.name, primaryImageOfPage: logoCard },
     {
       "@context": "https://schema.org",
       "@type": "TravelAgency",
@@ -63,7 +66,7 @@ export default async function Home() {
       slogan: site.slogan,
       url: site.url,
       logo: `${site.url}/brand/rs-adventure-logo-v2.png`,
-      image: `${site.url}/opengraph-image.jpg`,
+      image: logoCard,
       telephone: info.phone,
       address: { "@type": "PostalAddress", addressLocality: info.city, addressRegion: "MA", addressCountry: "BR" },
       founder: { "@type": "Person", name: site.founder.name },

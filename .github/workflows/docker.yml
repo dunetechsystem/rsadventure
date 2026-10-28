@@ -1,0 +1,66 @@
+# Monta a imagem Docker no GitHub a cada push na main e publica no ghcr.io; depois avisa o Coolify, que só baixa a
+# imagem pronta e reinicia o container (o servidor não compila mais nada).
+#
+# Configuração no repositório (Settings → Secrets and variables → Actions):
+#   Variables: NEXT_PUBLIC_SITE_URL, NEXT_PUBLIC_META_PIXEL_ID, NEXT_PUBLIC_GA4_ID, NEXT_PUBLIC_GOOGLE_ADS_ID,
+#              NEXT_PUBLIC_GOOGLE_ADS_LEAD_LABEL, NEXT_PUBLIC_GTM_ID — os mesmos valores do Coolify (entram no build).
+#   Secrets:   COOLIFY_WEBHOOK (Deploy Webhook do app no Coolify) e COOLIFY_TOKEN (token da API do Coolify).
+#              Sem eles, a imagem é publicada mas o deploy fica pro botão "Redeploy" no Coolify.
+#
+# A API do DunasTour só responde ao IP do servidor, então o build daqui sai sem os passeios; depois de subir, o
+# container chama /api/revalidate (Post-deployment command no Coolify) e as páginas são geradas de novo com os dados.
+name: Docker
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: docker-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    env:
+      COOLIFY_WEBHOOK: ${{ secrets.COOLIFY_WEBHOOK }}
+      COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            NEXT_PUBLIC_SITE_URL=${{ vars.NEXT_PUBLIC_SITE_URL }}
+            NEXT_PUBLIC_META_PIXEL_ID=${{ vars.NEXT_PUBLIC_META_PIXEL_ID }}
+            NEXT_PUBLIC_GA4_ID=${{ vars.NEXT_PUBLIC_GA4_ID }}
+            NEXT_PUBLIC_GOOGLE_ADS_ID=${{ vars.NEXT_PUBLIC_GOOGLE_ADS_ID }}
+            NEXT_PUBLIC_GOOGLE_ADS_LEAD_LABEL=${{ vars.NEXT_PUBLIC_GOOGLE_ADS_LEAD_LABEL }}
+            NEXT_PUBLIC_GTM_ID=${{ vars.NEXT_PUBLIC_GTM_ID }}
+
+      - name: Deploy no Coolify
+        if: env.COOLIFY_WEBHOOK != ''
+        run: |
+          # Desde o Coolify 4.5 o deploy é POST (GET responde 405)
+          code=$(curl -sS -X POST -o resposta.txt -w '%{http_code}' -H "Authorization: Bearer $COOLIFY_TOKEN" "$COOLIFY_WEBHOOK")
+          echo "HTTP $code"; cat resposta.txt; echo
+          [ "$code" -lt 400 ]

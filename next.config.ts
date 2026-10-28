@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Imagem Docker enxuta: .next/standalone já traz o server.js e só o node_modules que ele usa.
+  output: "standalone",
   // Fontes, selo e fundo dos cards de compartilhamento (lib/og-card) são lidos do disco em runtime.
   outputFileTracingIncludes: { "/**": ["./src/assets/**"] },
   images: {
