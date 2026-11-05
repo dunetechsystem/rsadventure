@@ -34,7 +34,18 @@ function withSlugs<T extends { id: string; title: string }>(items: T[]): (T & { 
 
 /** Acha pelo slug ou pelo id antigo (links velhos e itens do carrinho ainda usam o id). */
 export const findBySlug = <T extends { id: string; slug?: string }>(items: T[], param: string) =>
-  items.find((i) => i.slug === param) ?? items.find((i) => i.id === param);
+  items.find((i) => i.slug === param) ?? items.find((i) => i.id === param) ?? findByIdSuffix(items, param);
+
+/**
+ * Link antigo com o começo do id ("transfer-coletivo-0b3eb1"): o sufixo só existe enquanto há título repetido, então some
+ * quando a agência renomeia o outro passeio — e o link que o Google/WhatsApp guardou quebrava.
+ */
+function findByIdSuffix<T extends { id: string }>(items: T[], param: string) {
+  const prefix = /-([0-9a-f]{6})$/i.exec(param)?.[1]?.toLowerCase();
+  return prefix ? items.find((i) => i.id.toLowerCase().startsWith(prefix)) : undefined;
+}
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 async function get<T>(path: string, revalidate = REVALIDATE): Promise<T | null> {
   try {
@@ -73,6 +84,8 @@ export async function getTours(): Promise<TourCard[]> {
 }
 
 export async function getTour(tourId: string): Promise<TourDetail | null> {
+  // Slug que não achou passeio nenhum não é id — a API responderia erro (e sujava o log dela).
+  if (!UUID.test(tourId)) return null;
   const tour = await get<TourDetail>(`/api/tours/${encodeURIComponent(tourId)}`);
   const agencyId = await getAgencyId();
   // Só passeios desta agência — o site não vende passeio de outra.
@@ -88,6 +101,8 @@ export async function getPackages(): Promise<PackageCard[]> {
 }
 
 export async function getPackage(packageId: string): Promise<PackageDetail | null> {
+  // Slug que não achou passeio nenhum não é id — a API responderia erro (e sujava o log dela).
+  if (!UUID.test(packageId)) return null;
   const [pkg, own] = await Promise.all([get<PackageDetail>(`/api/packages/${encodeURIComponent(packageId)}`), getPackages()]);
   if (!pkg || !own.some((p) => p.id === pkg.id)) return null;
   return {
